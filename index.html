@@ -806,10 +806,6 @@
     // Retrieve saved repo or use default
     let currentRepo = localStorage.getItem('notes_repo') || 'vinithreddybandacts/cts';
     let currentBranch = localStorage.getItem('notes_branch') || 'main';
-    
-    function getApiBase() {
-        return `https://api.github.com/repos/${currentRepo}/contents/?ref=${currentBranch}`;
-    }
 
     // Initialize stack
     let viewStack = [];
@@ -1195,7 +1191,8 @@
         try {
             // Encode the path to properly handle special characters like '#' in folder names
             const encodedPath = path.split('/').map(p => encodeURIComponent(p)).join('/');
-            const res = await fetch(getApiBase() + encodedPath);
+            const apiUrl = `https://api.github.com/repos/${currentRepo}/contents/${encodedPath}?ref=${currentBranch}`;
+            const res = await fetch(apiUrl);
             if (!res.ok) throw new Error('Failed to fetch data');
             const data = await res.json();
             renderListItems(data, viewObj.content);
