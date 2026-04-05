@@ -2,83 +2,1443 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Index</title>
-    <script>
-        const branchButton = document.getElementById('branchButton');
-        const branchMenu = document.getElementById('branchMenu');
-        const branches = [];
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Notes App</title>
+    <!-- Fonts: Standard pairings loaded in -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Mulish:wght@300..1000&family=Ovo&family=Crimson+Pro:wght@200..900&family=VT323&family=Playfair+Display:wght@400;600;700&family=Playfair:wght@300;400;500&family=Inter:wght@300..700&family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://api.fontshare.com/v2/css?f[]=general-sans@400,500,600,700&f[]=stardom@400&f[]=satoshi@400,500,700&display=swap" rel="stylesheet">
+    <!-- Use marked.js for fast markdown parsing directly in browser -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.1/marked.min.js"></script>
+    <!-- Highlight.js for code syntax highlighting -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/csharp.min.js"></script>
+    <style>
+        :root {
+            --bg-body: #f2f2f7;
+            --bg-surface: #ffffff;
+            --text-main: #6a6a6a;
+            --text-secondary: #8e8e93;
+            --border-color: rgba(0, 0, 0, 0.05); /* very soft minimal border */
+            --accent: #002988;
+            --navbar-blur: rgba(255, 255, 255, 0.85);
 
-        // Function to fetch branches from the GitHub API
-        async function fetchBranches() {
-            const repo = window.location.pathname.split('/').slice(1, 3).join('/'); // Get owner/repo
-            const response = await fetch(`https://api.github.com/repos/${repo}/branches`);
-            const data = await response.json();
-            return data.map(branch => branch.name);
+            /* Font Themes */
+            --font-heading: 'Ovo', serif;
+            --font-body: 'Mulish', sans-serif;
         }
 
-        async function populateBranchMenu() {
-            branches.push(...await fetchBranches());
-            branches.forEach(branch => {
-                const option = document.createElement('option');
-                option.value = branch;
-                option.innerText = branch;
-                branchMenu.appendChild(option);
-            });
+        /* Second Font Theme */
+        body[data-font-theme="theme2"] {
+            --font-heading: 'Crimson Pro', serif;
+            --font-body: 'VT323', monospace;
         }
 
-        branchButton.addEventListener('click', () => {
-            branchMenu.classList.toggle('hidden');
-        });
-
-        branchMenu.addEventListener('change', (event) => {
-            const selectedBranch = event.target.value;
-            localStorage.setItem('selectedBranch', selectedBranch);
-            // Update API fetches
-            getApiBase(selectedBranch);
-            refreshDirectories(selectedBranch);
-        });
-
-        function getApiBase(branch) {
-            // Modify the base API URL to include the selected branch
-            const baseUrl = `https://api.github.com/repos/${repo}/contents?ref=${branch}`;
-            return baseUrl;
+        /* Third Font Theme */
+        body[data-font-theme="theme3"] {
+            --font-heading: 'Playfair Display', serif;
+            --font-body: 'Playfair', serif;
         }
 
-        // Call this function to refresh directory/files based on the selected branch
-        function refreshDirectories(branch) {
-            // Your logic to refresh directories/files fetch based on the branch.
+        /* Fourth Font Theme */
+        body[data-font-theme="theme4"] {
+            --font-heading: 'General Sans', sans-serif;
+            --font-body: 'Inter', sans-serif;
         }
 
-        async function downloadMarkdown(url) {
-            const selectedBranch = localStorage.getItem('selectedBranch') || 'main';
-            const finalUrl = url + `?ref=${selectedBranch}`;
-            const response = await fetch(finalUrl);
-            // Handle the downloaded markdown
+        /* Fifth Font Theme (Satoshi & Satoshi) */
+        body[data-font-theme="theme5"] {
+            --font-heading: 'Satoshi', sans-serif;
+            --font-body: 'Satoshi', sans-serif;
+        }
+        body[data-font-theme="theme5"] .markdown-body h1, 
+        body[data-font-theme="theme5"] .markdown-body h2, 
+        body[data-font-theme="theme5"] .markdown-body h3 {
+            font-weight: 700;
+            letter-spacing: -0.02em;
         }
 
-        // Error handling
-        async function handleError() {
-            try {
-                // Your fetching logic that may throw an error
-            } catch (error) {
-                // Fallback to default branch 'main' if an error occurs.
-                getApiBase('main');
+        /* Sixth Font Theme (Poppins Bold & Poppins Regular) */
+        body[data-font-theme="theme6"] {
+            --font-heading: 'Poppins', sans-serif;
+            --font-body: 'Poppins', sans-serif;
+        }
+        body[data-font-theme="theme6"] .markdown-body h1, 
+        body[data-font-theme="theme6"] .markdown-body h2, 
+        body[data-font-theme="theme6"] .markdown-body h3 {
+            font-weight: 700;
+        }
+
+        /* Seventh Font Theme (Poppins Semi-Bold & Poppins Regular) */
+        body[data-font-theme="theme7"] {
+            --font-heading: 'Poppins', sans-serif;
+            --font-body: 'Poppins', sans-serif;
+        }
+        body[data-font-theme="theme7"] .markdown-body h1, 
+        body[data-font-theme="theme7"] .markdown-body h2, 
+        body[data-font-theme="theme7"] .markdown-body h3 {
+            font-weight: 600; /* Semi-bold */
+        }
+        body[data-font-theme="theme7"] .nav-title {
+            font-weight: 600; /* Semi-bold */
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: var(--font-body), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            overflow: hidden; /* App root manages scrolling */
+            -webkit-user-select: none;
+            user-select: none;
+            line-height: 1.5;
+        }
+
+        #app {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            background-color: var(--bg-body);
+        }
+
+        /* Views for Navigation Stack */
+        .view {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--bg-body);
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.35s cubic-bezier(0.25, 1, 0.25, 1), opacity 0.35s cubic-bezier(0.25, 1, 0.25, 1);
+            transform: translateX(0);
+            z-index: 10;
+        }
+
+        /* Right slide state (incoming / future) */
+        .view.slide-right {
+            transform: translateX(100%);
+            z-index: 20;
+            box-shadow: none; /* No shadow */
+        }
+        
+        /* Left slide state (outgoing / previous) */
+        .view.slide-left {
+            transform: translateX(-30%);
+            opacity: 0.8;
+            z-index: 5;
+        }
+
+        /* Navbar Floating Ribbon Style */
+        .navbar {
+            height: 56px; /* Matches folder height closer */
+            padding-top: env(safe-area-inset-top, 0px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: transparent;
+            border: none;
+            position: absolute;
+            top: 20px;
+            left: 16px;
+            right: 16px;
+            border-radius: 18px; /* Slightly softer to match folder list */
+            z-index: 100;
+            flex-shrink: 0;
+            box-shadow: none; /* No shadow */
+            transition: all 0.3s cubic-bezier(0.25, 1, 0.25, 1);
+        }
+
+        /* Split Background Pseudo Elements */
+        .navbar::before, .navbar::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            height: 100%;
+            width: 50%;
+            background-color: var(--navbar-blur);
+            -webkit-backdrop-filter: blur(20px);
+            backdrop-filter: blur(20px);
+            z-index: -1;
+            transition: all 0.35s cubic-bezier(0.25, 1, 0.25, 1);
+        }
+
+        .navbar::before {
+            left: 0;
+            border-radius: 18px 0 0 18px;
+        }
+
+        .navbar::after {
+            right: 0;
+            border-radius: 0 18px 18px 0;
+        }
+
+        .md-view .navbar::before, .md-view .navbar::after {
+            background-color: var(--navbar-blur);
+        }
+
+        /* Hover effect - extremely smooth and minimal */
+        .navbar.nav-focused {
+            transform: scale(0.995);
+        }
+        
+        .navbar.nav-focused::before, .navbar.nav-focused::after {
+            background-color: var(--bg-surface);
+            -webkit-backdrop-filter: blur(30px);
+            backdrop-filter: blur(30px);
+        }
+
+        /* Hidden state purely for markdown scroll behavior: Split into two dots! */
+        .navbar.nav-hidden {
+            pointer-events: none; /* center is unclickable to allow viewing text */
+        }
+        
+        /* Left dot (Back) */
+        .navbar.nav-hidden::before {
+            width: 56px;
+            border-radius: 50%;
+            background-color: var(--bg-surface);
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23002988"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg>');
+            background-repeat: no-repeat;
+            background-position: center;
+            background-size: 26px;
+            transform: scale(0.8) translateX(-16px);
+            opacity: 0.85;
+            pointer-events: auto; /* dot is hoverable */
+        }
+
+        /* Right dot (Refresh) */
+        .navbar.nav-hidden::after {
+            width: 56px;
+            border-radius: 50%;
+            background-color: var(--bg-surface);
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23002988"><path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>');
+            background-repeat: no-repeat;
+            background-position: center;
+            background-size: 22px;
+            transform: scale(0.8) translateX(16px);
+            opacity: 0.85;
+            pointer-events: auto;
+        }
+
+        /* Show the navbar visible when hovering EITHER dot left or right */
+        .navbar.nav-hidden:hover {
+            pointer-events: auto;
+        }
+
+        .navbar.nav-hidden:hover::before {
+            width: 50%;
+            border-radius: 18px 0 0 18px;
+            background-image: none;
+            background-color: var(--navbar-blur);
+            transform: scale(1) translateX(0);
+            opacity: 1;
+        }
+
+        .navbar.nav-hidden:hover::after {
+            width: 50%;
+            border-radius: 0 18px 18px 0;
+            background-image: none;
+            background-color: var(--navbar-blur);
+            transform: scale(1) translateX(0);
+            opacity: 1;
+        }
+
+        .navbar.nav-hidden > * {
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+        
+        .navbar.nav-hidden:hover > * {
+            opacity: 1;
+            transition-delay: 0.15s;
+        }
+
+        .nav-title {
+            font-family: var(--font-heading);
+            font-weight: 500;
+            font-size: 17px;
+            max-width: calc(100% - 150px); /* Prevent overlapping with buttons */
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            text-align: center;
+            transition: all 0.3s cubic-bezier(0.25, 1, 0.25, 1);
+        }
+        
+        .navbar.nav-focused .nav-title {
+            font-weight: 500;
+            opacity: 0.8;
+        }
+
+        .nav-icon-btn {
+            position: absolute;
+            bottom: 0;
+            height: 56px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 44px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--accent);
+        }
+        .nav-icon-btn:active { opacity: 0.5; }
+        .nav-icon-btn svg { width: 22px; height: 22px; fill: var(--accent); }
+        .nav-icon-btn.left { left: 4px; }
+        .nav-icon-btn.right { right: 8px; }
+
+        /* Branch Selector Button - GitHub Octicon Style */
+        .branch-selector-btn {
+            position: absolute;
+            right: 96px;
+            bottom: 0;
+            height: 56px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            padding: 0 12px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--accent);
+            font-size: 14px;
+            font-weight: 500;
+            font-family: var(--font-body);
+            transition: opacity 0.2s ease;
+        }
+        .branch-selector-btn:active { opacity: 0.6; }
+        .branch-selector-btn:hover { opacity: 0.7; }
+        .branch-selector-btn svg { 
+            width: 16px; 
+            height: 16px; 
+            fill: var(--accent); 
+        }
+
+        /* Branch Dropdown Menu */
+        .branch-dropdown {
+            position: fixed;
+            background: var(--bg-surface);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            z-index: 1000;
+            min-width: 180px;
+            max-width: 240px;
+            max-height: 300px;
+            overflow-y: auto;
+            display: none;
+            animation: dropdownIn 0.15s ease;
+        }
+        .branch-dropdown.active {
+            display: block;
+        }
+        @keyframes dropdownIn {
+            from {
+                opacity: 0;
+                transform: translateY(-8px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
             }
         }
 
-        window.onload = () => {
-            populateBranchMenu();
-        };
-    </script>
+        .branch-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 16px;
+            border-bottom: 0.5px solid var(--border-color);
+            cursor: pointer;
+            transition: background-color 0.15s ease;
+            font-size: 15px;
+            color: var(--text-main);
+        }
+        .branch-item:last-child {
+            border-bottom: none;
+        }
+        .branch-item:hover {
+            background-color: #f9f9fb;
+        }
+        .branch-item.active {
+            background-color: #f0f4ff;
+            color: var(--accent);
+            font-weight: 600;
+        }
+        .branch-item-icon {
+            width: 16px;
+            height: 16px;
+            flex-shrink: 0;
+        }
+        .branch-item-icon svg {
+            width: 100%;
+            height: 100%;
+            fill: currentColor;
+        }
+
+        .back-btn {
+            position: absolute;
+            left: 8px;
+            bottom: 0;
+            height: 56px;
+            display: flex;
+            align-items: center;
+            color: var(--accent);
+            font-size: 17px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0 8px;
+        }
+        .back-btn:active {
+            opacity: 0.5;
+        }
+        .back-btn svg {
+            width: 22px;
+            height: 22px;
+            margin-right: 2px;
+            fill: var(--accent);
+        }
+
+        /* Content Container */
+        .content {
+            flex: 1;
+            overflow-y: auto;
+            padding-top: 84px; /* Space for the floating ribbon + margin */
+            padding-bottom: env(safe-area-inset-bottom, 20px);
+            position: relative;
+            z-index: 1;
+        }
+
+        /* List iOS Style (Grouped & Rounded) */
+        .list-container {
+            margin: 20px 16px;
+            border-radius: 20px;
+            background: var(--bg-surface);
+            box-shadow: none; /* No shadow */
+            overflow: hidden;
+        }
+
+        .list-item {
+            display: flex;
+            align-items: center;
+            padding: 14px 18px;
+            border-bottom: 0.5px solid var(--border-color);
+            cursor: pointer;
+            transition: background-color 0.15s ease, transform 0.15s ease;
+        }
+        .list-item:last-child {
+            border-bottom: none;
+        }
+        .list-item:active {
+            background-color: var(--bg-body);
+            transform: scale(0.98);
+        }
+        @media (hover: hover) {
+            .list-item:hover {
+                background-color: #f9f9fb;
+            }
+        }
+
+        .list-icon {
+            font-size: 24px;
+            margin-right: 14px;
+            width: 24px;
+            text-align: center;
+            line-height: 1;
+        }
+        
+        /* Icon Colors */
+        .icon-folder { color: #00336a; }
+        .icon-file { color: #8e8e93; }
+
+        .list-text {
+            flex: 1;
+            font-size: 17px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .list-chevron {
+            color: #c7c7cc;
+        }
+        .list-chevron svg {
+            width: 16px;
+            height: 16px;
+            fill: #c7c7cc;
+        }
+
+        /* Menu iOS Style */
+        .menu-overlay {
+            position: absolute;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(0,0,0,0.4);
+            z-index: 200;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s cubic-bezier(0.25, 1, 0.25, 1);
+        }
+        .menu-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .menu-sheet {
+            background: var(--bg-body);
+            border-radius: 24px 24px 0 0;
+            padding: 12px 16px 36px;
+            transform: translateY(100%);
+            transition: transform 0.3s cubic-bezier(0.25, 1, 0.25, 1);
+        }
+        .menu-overlay.active .menu-sheet {
+            transform: translateY(0);
+        }
+        .menu-title {
+            text-align: center;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin: 12px 0 16px;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            text-transform: uppercase;
+        }
+        .menu-list {
+            background: var(--bg-surface);
+            border-radius: 20px;
+            overflow: hidden;
+            margin-bottom: 20px;
+            box-shadow: none; /* No shadow */
+            border: none;
+        }
+        .menu-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 20px;
+            border-bottom: 0.5px solid var(--border-color);
+            cursor: pointer;
+            transition: background-color 0.15s ease;
+        }
+        .menu-item:last-child {
+            border-bottom: none;
+        }
+        .menu-item:active { background: var(--bg-body); }
+        @media (hover: hover) {
+            .menu-item:hover { background: #f9f9fb; }
+        }
+        
+        .menu-item-text {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+        .menu-item-title {
+            font-size: 17px;
+            color: var(--text-main);
+        }
+        .menu-item-subtitle {
+            font-size: 13px;
+            color: var(--text-secondary);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; /* Always UI font for the subtitle */
+        }
+
+        .menu-item .check {
+            display: none;
+            width: 20px; height: 20px;
+            fill: var(--accent);
+        }
+        .menu-item.selected .check { display: block; }
+        .menu-cancel {
+            background: var(--bg-surface);
+            border-radius: 20px;
+            padding: 16px;
+            text-align: center;
+            font-size: 17px;
+            font-weight: 600;
+            color: var(--accent);
+            cursor: pointer;
+            box-shadow: none; /* No shadow */
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            transition: background-color 0.15s ease;
+            border: none;
+        }
+        .menu-cancel:active { background: var(--bg-body); }
+        @media (hover: hover) {
+            .menu-cancel:hover { background: #f9f9fb; }
+        }
+
+        /* Loader */
+        .loader-container {
+            display: flex;
+            justify-content: center;
+            padding: 40px;
+            color: var(--text-secondary);
+            font-size: 15px;
+        }
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--border-color);
+            border-top: 2px solid var(--text-secondary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* Full Screen Markdown Content */
+        .md-view .content {
+            background: var(--bg-surface);
+            padding: 96px 20px 20px 20px; /* Increased top padding to avoid overlap with higher navbar */
+            font-size: 17px;
+            line-height: 1.5;
+            -webkit-user-select: text; /* Allow text selection */
+            user-select: text;
+        }
+        .markdown-body {
+            max-width: 800px;
+            margin: 0 auto;
+            color: #24292e;
+            font-family: var(--font-body), -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            font-size: 16px;
+            line-height: 1.6;
+            word-wrap: break-word;
+        }
+        body[data-font-theme="theme2"] .markdown-body {
+            font-size: 20px; /* VT323 needs to be larger to be readable */
+        }
+        .markdown-body h1, 
+        .markdown-body h2, 
+        .markdown-body h3, 
+        .markdown-body h4 {
+            font-family: var(--font-heading);
+            font-weight: 400;
+            color: #111;
+            margin-top: 24px;
+            margin-bottom: 16px;
+            line-height: 1.25;
+        }
+        .markdown-body h1 { font-size: 2em; padding-bottom: 0.3em; }
+        .markdown-body h2 { font-size: 1.5em; padding-bottom: 0.3em; }
+        .markdown-body h3 { font-size: 1.25em; }
+        .markdown-body p, .markdown-body ul, .markdown-body ol { margin-bottom: 16px; }
+        .markdown-body a { color: var(--accent); text-decoration: none; }
+        .markdown-body a:hover { text-decoration: underline; }
+        .markdown-body ul, .markdown-body ol { padding-left: 2em; }
+        .markdown-body code {
+            font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+            font-size: 85%;
+            background-color: rgba(27, 31, 35, 0.05);
+            color: #d73a49; /* Reddish tint for inline code like github */
+            padding: 0.2em 0.4em;
+            border-radius: 8px;
+        }
+        .markdown-body pre {
+            background-color: #f6f8fa;
+            border-radius: 16px;
+            padding: 16px;
+            overflow: auto;
+            margin-bottom: 16px;
+            box-shadow: none; /* No shadow */
+            border: none;
+        }
+        .markdown-body pre code {
+            background: transparent;
+            padding: 0;
+            color: inherit;
+            font-size: 85%;
+            white-space: pre;
+            border-radius: 0;
+        }
+        .markdown-body blockquote {
+            padding: 0.5em 1em;
+            color: #586069;
+            background-color: #fafbfc;
+            border-left: 0.3em solid #dfe2e5;
+            margin: 0 0 16px 0;
+            border-radius: 0 12px 12px 0;
+        }
+        .markdown-body mark {
+            background-color: #fff8c5;
+            color: #24292e;
+            padding: 0.2em 0.4em;
+            border-radius: 6px;
+        }
+        .markdown-body img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 12px;
+            box-shadow: none; /* No shadow */
+            border: none;
+        }
+
+        /* Markdown Tables */
+        .markdown-body table {
+            border-collapse: collapse;
+            width: 100%;
+            margin-bottom: 24px;
+            font-size: 15px;
+            overflow-x: auto;
+            display: block;
+            border-radius: 16px;
+            box-shadow: none; /* No shadow */
+            background: var(--bg-surface);
+        }
+        .markdown-body table th,
+        .markdown-body table td {
+            border-bottom: 0.5px solid var(--border-color);
+            padding: 12px 16px;
+            text-align: left;
+        }
+        .markdown-body table th {
+            background-color: #f6f8fa;
+            font-weight: 600;
+            color: #24292e;
+        }
+        .markdown-body table tr:last-child td {
+            border-bottom: none;
+        }
+        .markdown-body table tr:nth-child(even) {
+            background-color: #fafbfc;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-secondary);
+            font-size: 16px;
+        }
+
+        #svg-defs {
+            display: none;
+        }
+    </style>
 </head>
 <body>
-    <nav>
-        <button id="branchButton">
-            <svg class="octicon git-branch" aria-hidden="true" version="1.1" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M8.5 0a.5.5 0 0 1 .5.5V4h3a.5.5 0 0 1 0 1h-3v3h3a.5.5 0 0 1 0 1h-3v4.5a.5.5 0 0 1-1 0V8H5.5a.5.5 0 0 1 0-1h3V4H5.5a.5.5 0 0 1 0-1h3V.5a.5.5 0 0 1 .5-.5z"/></svg>
-            Branch
-        </button>
-        <select id="branchMenu" class="hidden"></select>
-    </nav>
+
+<div id="app"></div>
+
+<!-- Font Menu Overlay -->
+<div id="font-menu" class="menu-overlay">
+    <div class="menu-sheet">
+        <div class="menu-title">Select Typography</div>
+        <div class="menu-list" id="font-options">
+            <div class="menu-item" data-theme="theme1" onclick="selectTheme('theme1')">
+                <div class="menu-item-text">
+                    <div class="menu-item-title" style="font-family: 'Ovo', serif;">Ovo / Mulish</div>
+                    <div class="menu-item-subtitle">Ovo (Heading), Mulish (Body)</div>
+                </div>
+                <svg class="check" viewBox="0 0 24 24"><path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z"/></svg>
+            </div>
+            
+            <div class="menu-item" data-theme="theme2" onclick="selectTheme('theme2')">
+                <div class="menu-item-text">
+                    <div class="menu-item-title" style="font-family: 'Crimson Pro', serif;">Crimson Pro / VT323</div>
+                    <div class="menu-item-subtitle">Crimson Pro (Heading), VT323 (Body)</div>
+                </div>
+                <svg class="check" viewBox="0 0 24 24"><path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z"/></svg>
+            </div>
+            
+            <div class="menu-item" data-theme="theme3" onclick="selectTheme('theme3')">
+                <div class="menu-item-text">
+                    <div class="menu-item-title" style="font-family: 'Playfair Display', serif;">Playfair Display</div>
+                    <div class="menu-item-subtitle">Playfair Display (Heading), Playfair (Body)</div>
+                </div>
+                <svg class="check" viewBox="0 0 24 24"><path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z"/></svg>
+            </div>
+            
+            <div class="menu-item" data-theme="theme4" onclick="selectTheme('theme4')">
+                <div class="menu-item-text">
+                    <div class="menu-item-title" style="font-family: 'General Sans', sans-serif; font-weight: 600;">General Sans</div>
+                    <div class="menu-item-subtitle">General Sans (Heading), Inter (Body)</div>
+                </div>
+                <svg class="check" viewBox="0 0 24 24"><path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z"/></svg>
+            </div>
+            
+            <div class="menu-item" data-theme="theme5" onclick="selectTheme('theme5')">
+                <div class="menu-item-text">
+                    <div class="menu-item-title" style="font-family: 'Satoshi', sans-serif; font-weight: 700;">Stack Sans (Satoshi)</div>
+                    <div class="menu-item-subtitle">Satoshi (Notched Headings & Text)</div>
+                </div>
+                <svg class="check" viewBox="0 0 24 24"><path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z"/></svg>
+            </div>
+            
+            <div class="menu-item" data-theme="theme6" onclick="selectTheme('theme6')">
+                <div class="menu-item-text">
+                    <div class="menu-item-title" style="font-family: 'Poppins', sans-serif; font-weight: 700;">Poppins Bold</div>
+                    <div class="menu-item-subtitle">Poppins Bold (Heading), Poppins (Body)</div>
+                </div>
+                <svg class="check" viewBox="0 0 24 24"><path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z"/></svg>
+            </div>
+            
+            <div class="menu-item" data-theme="theme7" onclick="selectTheme('theme7')">
+                <div class="menu-item-text">
+                    <div class="menu-item-title" style="font-family: 'Poppins', sans-serif; font-weight: 600;">Poppins Semi-Bold</div>
+                    <div class="menu-item-subtitle">Poppins Semi-Bold (Heading), Poppins (Body)</div>
+                </div>
+                <svg class="check" viewBox="0 0 24 24"><path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z"/></svg>
+            </div>
+        </div>
+        <div class="menu-cancel" onclick="closeFontMenu()">Cancel</div>
+    </div>
+</div>
+
+<script>
+    const appEl = document.getElementById('app');
+    
+    // Retrieve saved repo or use default
+    let currentRepo = localStorage.getItem('notes_repo') || 'vinithreddybandacts/cts';
+    let currentBranch = localStorage.getItem('notes_branch') || 'main';
+    
+    function getApiBase() {
+        return `https://api.github.com/repos/${currentRepo}/contents/?ref=${currentBranch}`;
+    }
+
+    // Initialize stack
+    let viewStack = [];
+
+    // Helper to safely update URL state without triggering file:// security errors
+    function updateURLState(hashStr) {
+        try {
+            history.replaceState(null, '', hashStr ? '#' + hashStr : window.location.pathname);
+        } catch (e) {
+            // Browsers like Chrome block history API on file:// protocol.
+            // Fallback to location.replace which updates hash without adding to back-button history
+            const base = window.location.href.split('#')[0];
+            window.location.replace(base + (hashStr ? '#' + hashStr : ''));
+        }
+    }
+
+    // Helper: Create a View Element
+    function createView(title, isMarkdown = false, path = '') {
+        const view = document.createElement('div');
+        view.className = `view slide-right ${isMarkdown ? 'md-view' : ''}`;
+        
+        // Navbar
+        const navbar = document.createElement('div');
+        navbar.className = 'navbar';
+        
+        const content = document.createElement('div');
+        content.className = 'content';
+
+        const viewObj = { view, content, title };
+
+        // Only add back button if it's not the root file list
+        if (viewStack.length > 0 || (path && path !== '')) {
+            const backBtn = document.createElement('button');
+            backBtn.className = 'back-btn';
+            backBtn.innerHTML = `<svg viewBox="0 0 24 24"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg><span>Back</span>`;
+            backBtn.onclick = () => {
+                if (viewStack.length > 1) {
+                    popView();
+                } else {
+                    appEl.innerHTML = '';
+                    viewStack = [];
+                    loadDirectory('', currentRepo.split('/')[1] || 'Repository');
+                }
+            };
+            navbar.appendChild(backBtn);
+        } else {
+            // Root view: add Repo Edit button
+            const repoBtn = document.createElement('button');
+            repoBtn.className = 'nav-icon-btn left';
+            repoBtn.innerHTML = `<svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 10.18l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>`;
+            repoBtn.onclick = changeRepo;
+            navbar.appendChild(repoBtn);
+        }
+
+        const navTitle = document.createElement('div');
+        navTitle.className = 'nav-title';
+        navTitle.textContent = title;
+        navbar.appendChild(navTitle);
+        
+        // Always add Refresh button
+        const refreshBtn = document.createElement('button');
+        refreshBtn.className = 'nav-icon-btn right';
+        refreshBtn.innerHTML = `<svg viewBox="0 0 24 24"><path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>`;
+        refreshBtn.onclick = () => { if (viewObj.refresh) viewObj.refresh(); };
+        navbar.appendChild(refreshBtn);
+
+        // Always add Font Theme toggle button next to Refresh
+        const fontBtn = document.createElement('button');
+        fontBtn.className = 'nav-icon-btn right';
+        fontBtn.style.right = '56px'; // Offset from refresh button
+        fontBtn.innerHTML = `<svg viewBox="0 0 24 24"><path d="M9.93 13.5h4.14L12 7.98zM20 2H4c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-4.05 16.5l-1.14-3H9.17l-1.12 3H5.96l5.11-13h1.86l5.11 13h-2.09z"/></svg>`;
+        fontBtn.onclick = openFontMenu;
+        navbar.appendChild(fontBtn);
+
+        // Branch Selector Button - GitHub Octicon Style
+        const branchBtn = document.createElement('button');
+        branchBtn.className = 'branch-selector-btn';
+        branchBtn.innerHTML = `
+            <svg aria-hidden="true" focusable="false" class="octicon octicon-git-branch" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" display="inline-block" overflow="visible" style="vertical-align: text-bottom;"><path d="M9.5 3.25a2.25 2.25 0 1 1 3 2.122V6A2.5 2.5 0 0 1 10 8.5H6a1 1 0 0 0-1 1v1.128a2.251 2.251 0 1 1-1.5 0V5.372a2.25 2.25 0 1 1 1.5 0v1.836A2.493 2.493 0 0 1 6 7h4a1 1 0 0 0 1-1v-.628A2.25 2.25 0 0 1 9.5 3.25Zm-6 0a.75.75 0 1 0 1.5 0 .75.75 0 0 0-1.5 0Zm8.25-.75a.75.75 0 1 0 0 1.5.75.75 0 0 0 0-1.5ZM4.25 12a.75.75 0 1 0 0 1.5.75.75 0 0 0 0-1.5Z"></path></svg>
+            <span id="current-branch">main</span>
+        `;
+        branchBtn.onclick = (e) => { e.stopPropagation(); openBranchDropdown(branchBtn); };
+        navbar.appendChild(branchBtn);
+        
+        view.appendChild(navbar);
+        view.appendChild(content);
+
+        // Interaction logic for navbar animations
+        navbar.addEventListener('mouseenter', () => navbar.classList.add('nav-focused'));
+        navbar.addEventListener('mouseleave', () => navbar.classList.remove('nav-focused'));
+        navbar.addEventListener('touchstart', () => navbar.classList.add('nav-focused'), {passive: true});
+        navbar.addEventListener('touchend', () => navbar.classList.remove('nav-focused'), {passive: true});
+
+        // Scroll logic for headers
+        let lastScrollY = 0;
+        content.addEventListener('scroll', () => {
+            const currentScrollY = content.scrollTop;
+            
+            if (isMarkdown) {
+                // In markdown, hide automatically on scroll down, only show at very top
+                if (currentScrollY > 60) {
+                    navbar.classList.add('nav-hidden');
+                } else if (currentScrollY <= 60) {
+                    navbar.classList.remove('nav-hidden');
+                }
+            } else {
+                // In non-markdown, maybe just a very subtle floating change (or stick to touch interaction)
+            }
+            lastScrollY = currentScrollY;
+        }, {passive: true});
+
+        return viewObj;
+    }
+
+    // Push View to Stack
+    function pushView(title, isMarkdown = false, path = '') {
+        const viewObj = createView(title, isMarkdown, path);
+        appEl.appendChild(viewObj.view);
+        
+        // Animate incoming
+        requestAnimationFrame(() => {
+            viewObj.view.classList.remove('slide-right');
+        });
+
+        // Hide currently active view (Slide Left)
+        if (viewStack.length > 0) {
+            const currentObj = viewStack[viewStack.length - 1];
+            currentObj.view.classList.add('slide-left');
+        }
+
+        viewStack.push(viewObj);
+        return viewObj;
+    }
+
+    function changeRepo() {
+        const newRepo = prompt("Enter GitHub Repository (username/repo):", currentRepo);
+        if (newRepo && newRepo.trim() !== "" && newRepo !== currentRepo) {
+            currentRepo = newRepo.trim();
+            localStorage.setItem('notes_repo', currentRepo);
+            // Reset app
+            appEl.innerHTML = '';
+            viewStack = [];
+            loadDirectory('', currentRepo.split('/')[1] || 'Repository');
+        }
+    }
+
+    // Font Menu System
+    const menuOverlay = document.getElementById('font-menu');
+    
+    function openFontMenu() {
+        const currentTheme = document.body.getAttribute('data-font-theme') || 'theme1';
+        document.querySelectorAll('.menu-item').forEach(item => {
+            if(item.getAttribute('data-theme') === currentTheme) {
+                item.classList.add('selected');
+            } else {
+                item.classList.remove('selected');
+            }
+        });
+        menuOverlay.classList.add('active');
+    }
+
+    function closeFontMenu() {
+        menuOverlay.classList.remove('active');
+    }
+
+    function selectTheme(themeId) {
+        document.body.setAttribute('data-font-theme', themeId);
+        localStorage.setItem('notes_font_theme', themeId);
+        closeFontMenu();
+    }
+
+    // Close menu when tapping outside
+    menuOverlay.addEventListener('click', (e) => {
+        if(e.target === menuOverlay) closeFontMenu();
+    });
+
+    // Init saved theme
+    const savedTheme = localStorage.getItem('notes_font_theme');
+    if (savedTheme) {
+        document.body.setAttribute('data-font-theme', savedTheme);
+    }
+
+    // Branch Selector System
+    let branchDropdown = null;
+
+    async function fetchBranches() {
+        try {
+            const response = await fetch(`https://api.github.com/repos/${currentRepo}/branches`);
+            if (!response.ok) throw new Error('Failed to fetch branches');
+            return await response.json();
+        } catch (error) {
+            console.error('Error fetching branches:', error);
+            return [];
+        }
+    }
+
+    function openBranchDropdown(btn) {
+        // Remove existing dropdown
+        if (branchDropdown && branchDropdown.parentNode) {
+            branchDropdown.parentNode.removeChild(branchDropdown);
+        }
+
+        // Create dropdown
+        branchDropdown = document.createElement('div');
+        branchDropdown.className = 'branch-dropdown active';
+        
+        // Show loading
+        branchDropdown.innerHTML = `<div style="padding: 12px 16px; text-align: center; font-size: 14px; color: var(--text-secondary);">Loading branches...</div>`;
+        
+        // Position dropdown
+        const rect = btn.getBoundingClientRect();
+        branchDropdown.style.top = (rect.bottom + 8) + 'px';
+        branchDropdown.style.right = '16px';
+        
+        document.body.appendChild(branchDropdown);
+
+        // Fetch branches
+        fetchBranches().then(branches => {
+            branchDropdown.innerHTML = '';
+            
+            if (branches.length === 0) {
+                branchDropdown.innerHTML = `<div style="padding: 12px 16px; text-align: center; font-size: 14px; color: var(--text-secondary);">No branches found</div>`;
+                return;
+            }
+
+            branches.forEach(branch => {
+                const item = document.createElement('div');
+                item.className = `branch-item ${branch.name === currentBranch ? 'active' : ''}`;
+                item.innerHTML = `
+                    <div class="branch-item-icon">
+                        <svg aria-hidden="true" focusable="false" class="octicon octicon-git-branch" viewBox="0 0 16 16" width="16" height="16" fill="currentColor"><path d="M9.5 3.25a2.25 2.25 0 1 1 3 2.122V6A2.5 2.5 0 0 1 10 8.5H6a1 1 0 0 0-1 1v1.128a2.251 2.251 0 1 1-1.5 0V5.372a2.25 2.25 0 1 1 1.5 0v1.836A2.493 2.493 0 0 1 6 7h4a1 1 0 0 0 1-1v-.628A2.25 2.25 0 0 1 9.5 3.25Zm-6 0a.75.75 0 1 0 1.5 0 .75.75 0 0 0-1.5 0Zm8.25-.75a.75.75 0 1 0 0 1.5.75.75 0 0 0 0-1.5ZM4.25 12a.75.75 0 1 0 0 1.5.75.75 0 0 0 0-1.5Z"></path></svg>
+                    </div>
+                    <span>${branch.name}</span>
+                    ${branch.name === currentBranch ? '<svg style="margin-left: auto; width: 16px; height: 16px; fill: var(--accent);" viewBox="0 0 24 24"><path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z"/></svg>' : ''}
+                `;
+                item.onclick = () => {
+                    if (branch.name !== currentBranch) {
+                        currentBranch = branch.name;
+                        localStorage.setItem('notes_branch', currentBranch);
+                        // Update button display
+                        document.querySelectorAll('#current-branch').forEach(el => {
+                            el.textContent = currentBranch;
+                        });
+                        // Reload current view with new branch
+                        if (viewStack.length > 0) {
+                            const currentView = viewStack[viewStack.length - 1];
+                            if (currentView.refresh) currentView.refresh();
+                        }
+                    }
+                    closeBranchDropdown();
+                };
+                branchDropdown.appendChild(item);
+            });
+        });
+
+        // Close on outside click
+        document.addEventListener('click', closeBranchDropdownOnClickOutside, true);
+    }
+
+    function closeBranchDropdownOnClickOutside(e) {
+        if (branchDropdown && !branchDropdown.contains(e.target) && !e.target.closest('.branch-selector-btn')) {
+            closeBranchDropdown();
+            document.removeEventListener('click', closeBranchDropdownOnClickOutside, true);
+        }
+    }
+
+    function closeBranchDropdown() {
+        if (branchDropdown && branchDropdown.parentNode) {
+            branchDropdown.classList.remove('active');
+            setTimeout(() => {
+                if (branchDropdown && branchDropdown.parentNode) {
+                    branchDropdown.parentNode.removeChild(branchDropdown);
+                }
+            }, 150);
+        }
+    }
+
+    // Pop View off Stack
+    function popView() {
+        if (viewStack.length <= 1) return;
+        
+        const outgoingObj = viewStack.pop();
+        const incomingObj = viewStack[viewStack.length - 1];
+
+        if (incomingObj && incomingObj.hashParams) {
+            updateURLState(incomingObj.hashParams.toString());
+        } else {
+            updateURLState('');
+        }
+
+        // Animate outgoing (Slide Right)
+        outgoingObj.view.classList.add('slide-right');
+        
+        // Animate incoming back to center
+        incomingObj.view.classList.remove('slide-left');
+
+        // Cleanup after animation
+        setTimeout(() => {
+            if (outgoingObj.view.parentNode) {
+                appEl.removeChild(outgoingObj.view);
+            }
+        }, 350);
+    }
+
+    // Render Loader
+    function renderLoader(container) {
+        container.innerHTML = `
+            <div class="loader-container">
+                <div class="spinner"></div> Loading...
+            </div>
+        `;
+    }
+
+    // Format GitHub API Response as an iOS List
+    function renderListItems(items, container) {
+        container.innerHTML = '';
+        
+        if (!items || items.length === 0) {
+            container.innerHTML = `<div class="empty-state">No items found</div>`;
+            return;
+        }
+
+        // Sort: Folders first, then files alphabetically
+        items.sort((a, b) => {
+            if (a.type === b.type) return a.name.localeCompare(b.name);
+            return a.type === 'dir' ? -1 : 1;
+        });
+
+        const listContainer = document.createElement('div');
+        listContainer.className = 'list-container';
+
+        items.forEach(item => {
+            const row = document.createElement('div');
+            row.className = 'list-item';
+            
+            const isDir = item.type === 'dir';
+            const iconPath = isDir ? 'M10 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z' : 'M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8V4h5v5h5v11z';
+            const iconColorClass = isDir ? 'icon-folder' : 'icon-file';
+
+            row.innerHTML = `
+                <div class="list-icon ${iconColorClass}">
+                    <svg viewBox="0 0 24 24" fill="currentColor">
+                        <path d="${iconPath}" />
+                    </svg>
+                </div>
+                <div class="list-text">${item.name}</div>
+                <div class="list-chevron">
+                    <svg viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
+                </div>
+            `;
+
+            row.onclick = () => {
+                if (isDir) {
+                    loadDirectory(item.path, item.name);
+                } else if (item.name.toLowerCase().endsWith('.md')) {
+                    loadMarkdownFile(item.download_url, item.name, null, item.path);
+                } else {
+                    window.open(item.html_url, '_blank');
+                }
+            };
+            
+            listContainer.appendChild(row);
+        });
+
+        container.appendChild(listContainer);
+    }
+
+    // Fetch and Load Directory contents
+    async function loadDirectory(path = '', title = 'Notes', existingView = null) {
+        const viewObj = existingView || pushView(title, false, path);
+        // Save state to allow refreshing this specific view
+        viewObj.refresh = () => loadDirectory(path, title, viewObj);
+        
+        const params = new URLSearchParams();
+        params.set('type', 'dir');
+        params.set('path', path);
+        params.set('title', title);
+        viewObj.hashParams = params;
+        updateURLState(params.toString());
+        
+        renderLoader(viewObj.content);
+
+        try {
+            // Encode the path to properly handle special characters like '#' in folder names
+            const encodedPath = path.split('/').map(p => encodeURIComponent(p)).join('/');
+            const res = await fetch(getApiBase() + encodedPath);
+            if (!res.ok) throw new Error('Failed to fetch data');
+            const data = await res.json();
+            renderListItems(data, viewObj.content);
+        } catch (err) {
+            viewObj.content.innerHTML = `<div class="empty-state">Error: ${err.message}</div>`;
+        }
+    }
+
+    // Fetch and Load Markdown File
+    async function loadMarkdownFile(downloadUrl, title, existingView = null, path = '') {
+        const viewObj = existingView || pushView(title, true, path); // true = isMarkdown
+        // Save state to allow refreshing this specific markdown view
+        viewObj.refresh = () => loadMarkdownFile(downloadUrl, title, viewObj, path);
+        
+        const params = new URLSearchParams();
+        params.set('type', 'md');
+        params.set('path', path);
+        params.set('title', title);
+        params.set('url', downloadUrl);
+        viewObj.hashParams = params;
+        updateURLState(params.toString());
+        
+        renderLoader(viewObj.content);
+
+        try {
+            const res = await fetch(downloadUrl);
+            if (!res.ok) throw new Error('Failed to fetch file');
+            const markdownText = await res.text();
+            
+            const htmlContent = marked.parse(markdownText);
+            
+            const mdContainer = document.createElement('div');
+            mdContainer.className = 'markdown-body';
+            mdContainer.innerHTML = htmlContent;
+
+            // Generate IDs for headings and intercept anchor links
+            mdContainer.querySelectorAll('h1, h2, h3, h4, h5, h6').forEach(h => {
+                if (!h.id) {
+                    h.id = h.textContent.trim().toLowerCase().replace(/[^\w\-]+/g, '');
+                }
+            });
+
+            mdContainer.addEventListener('click', (e) => {
+                const a = e.target.closest('a');
+                if (a) {
+                    const href = a.getAttribute('href');
+                    if (href && href.startsWith('#')) {
+                        e.preventDefault();
+                        const targetId = href.substring(1);
+                        const targetEl = mdContainer.querySelector(`#${targetId}`) || mdContainer.querySelector(`[name="${targetId}"]`);
+                        if (targetEl) {
+                            viewObj.content.scrollTo({
+                                top: targetEl.offsetTop - 90, // Account for top padding
+                                behavior: 'smooth'
+                            });
+                        }
+                    }
+                }
+            });
+
+            // Apply syntax highlighting
+            if (window.hljs) {
+                mdContainer.querySelectorAll('pre code').forEach((block) => {
+                    hljs.highlightElement(block);
+                });
+            }
+
+            viewObj.content.innerHTML = '';
+            viewObj.content.appendChild(mdContainer);
+        } catch (err) {
+            viewObj.content.innerHTML = `<div class="empty-state">Error: ${err.message}</div>`;
+        }
+    }
+
+    // Build Home Page
+    function loadHome() {
+        // Clear any existing state
+        viewStack.forEach(v => {
+            if (v.view.parentNode) appEl.removeChild(v.view);
+        });
+        viewStack = [];
+        updateURLState('');
+        
+        const viewObj = { view: document.createElement('div'), content: document.createElement('div'), title: 'Home' };
+        viewObj.view.className = 'view slide-right active'; // Make it active immediately
+        viewObj.view.style.backgroundColor = 'var(--bg-body)';
+        viewObj.content.className = 'content';
+        viewObj.content.style.display = 'flex';
+        viewObj.content.style.flexDirection = 'column';
+        viewObj.content.style.alignItems = 'center';
+        viewObj.content.style.justifyContent = 'center';
+        viewObj.content.style.padding = '40px 20px';
+        viewObj.content.style.height = '100%';
+
+        const navbar = document.createElement('div');
+        navbar.className = 'navbar';
+        
+        const navTitle = document.createElement('div');
+        navTitle.className = 'nav-title';
+        navTitle.textContent = 'Notes App';
+        navbar.appendChild(navTitle);
+        viewObj.view.appendChild(navbar);
+
+        const container = document.createElement('div');
+        container.style.width = '100%';
+        container.style.maxWidth = '360px';
+        container.style.textAlign = 'center';
+        container.style.display = 'flex';
+        container.style.flexDirection = 'column';
+        container.style.gap = '24px';
+        
+        const titleGroup = document.createElement('div');
+        
+        const label = document.createElement('p');
+        label.textContent = 'Connect a GitHub repository to seamlessly browse and read your Markdown files.';
+        label.style.fontSize = '16px';
+        label.style.lineHeight = '1.4';
+        label.style.color = 'var(--text-muted)';
+        label.style.margin = '0 auto';
+        label.style.maxWidth = '280px';
+        
+        titleGroup.appendChild(label);
+
+        // Input section
+        const inputGroup = document.createElement('div');
+        inputGroup.style.position = 'relative';
+        inputGroup.style.marginTop = '16px';
+
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.placeholder = 'username/repo';
+        input.value = currentRepo || '';
+        input.style.width = '100%';
+        input.style.padding = '16px 16px 16px 44px';
+        input.style.backgroundColor = 'var(--bg-card)';
+        input.style.border = '1px solid var(--border-color)';
+        input.style.borderRadius = '14px';
+        input.style.fontSize = '17px';
+        input.style.boxSizing = 'border-box';
+        input.style.outline = 'none';
+        input.style.color = 'var(--text-main)';
+        input.style.transition = 'border-color 0.2s';
+        
+        // Subtle GitHub Icon inside input
+        const ghIcon = document.createElement('div');
+        ghIcon.innerHTML = `<svg viewBox="0 0 24 24" width="20" height="20" fill="var(--text-muted)"><path d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.7-2.782.603-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.462-1.11-1.462-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.831.092-.646.35-1.086.636-1.336-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0112 6.836c.85.004 1.705.114 2.504.336 1.909-1.294 2.747-1.025 2.747-1.025.546 1.379.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.161 22 16.418 22 12c0-5.523-4.477-10-10-10z"/></svg>`;
+        ghIcon.style.position = 'absolute';
+        ghIcon.style.left = '16px';
+        ghIcon.style.top = '50%';
+        ghIcon.style.transform = 'translateY(-50%)';
+        ghIcon.style.pointerEvents = 'none';
+
+        inputGroup.appendChild(ghIcon);
+        inputGroup.appendChild(input);
+
+        input.onfocus = () => { 
+            input.style.borderColor = '#007AFF'; 
+            input.style.boxShadow = 'none';
+        };
+        input.onblur = () => { 
+            input.style.borderColor = 'var(--border-color)'; 
+            input.style.boxShadow = 'none';
+        };
+
+        const btn = document.createElement('button');
+        btn.textContent = 'Browse Repository';
+        btn.style.width = '100%';
+        btn.style.padding = '16px';
+        btn.style.backgroundColor = '#007AFF';
+        btn.style.color = '#fff';
+        btn.style.border = 'none';
+        btn.style.borderRadius = '14px';
+        btn.style.fontSize = '17px';
+        btn.style.fontWeight = '600';
+        btn.style.cursor = 'pointer';
+        btn.style.transition = 'transform 0.1s, opacity 0.2s';
+        
+        btn.onmousedown = () => btn.style.transform = 'scale(0.97)';
+        btn.onmouseup = () => btn.style.transform = 'scale(1)';
+        btn.onmouseleave = () => btn.style.transform = 'scale(1)';
+
+        btn.onclick = () => {
+            let val = input.value.trim();
+            if (val) {
+                // Extract username/repo if they paste a full URL
+                if (val.includes('github.com/')) {
+                    val = val.split('github.com/')[1].split('/').slice(0, 2).join('/');
+                }
+                currentRepo = val;
+                localStorage.setItem('notes_repo', currentRepo);
+                
+                // Hide home view when transitioning (iOS style)
+                viewObj.view.classList.remove('active');
+                
+                // We'll push the directory view on top
+                loadDirectory('', currentRepo.split('/')[1] || 'Repository');
+            }
+        };
+
+        input.onkeydown = (e) => {
+            if (e.key === 'Enter') btn.click();
+        };
+
+        container.appendChild(titleGroup);
+        container.appendChild(inputGroup);
+        container.appendChild(btn);
+
+        viewObj.content.appendChild(container);
+        viewObj.view.appendChild(viewObj.content);
+        appEl.appendChild(viewObj.view);
+        viewStack.push(viewObj);
+        
+        // Ensure animation happens
+        setTimeout(() => viewObj.view.classList.remove('slide-right'), 10);
+    }
+
+    // Initialize the app with Hash Routing
+    function initApp() {
+        if (window.location.hash) {
+            try {
+                const params = new URLSearchParams(window.location.hash.substring(1));
+                const type = params.get('type');
+                const path = params.get('path') || '';
+                const title = params.get('title') || 'Notes';
+                const url = params.get('url');
+
+                if (type === 'dir') {
+                    loadDirectory(path, title);
+                    return;
+                } else if (type === 'md' && url) {
+                    loadMarkdownFile(url, title, null, path);
+                    return;
+                }
+            } catch (e) {
+                console.error('Invalid hash structure');
+            }
+        }
+        loadHome();
+    }
+
+    initApp();
+
+</script>
+
 </body>
 </html>
